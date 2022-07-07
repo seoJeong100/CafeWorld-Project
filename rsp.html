@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가위바위보</title>
+
+    <style>
+        #computer   {
+            width: 250px;
+            height: 200px;
+        }
+
+        .btn input    {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="computer"></div>
+    <br>
+    <div>
+        <button id="scissors" class="btn">가위</button>
+        <button id="rock" class="btn">바위</button>
+        <button id="paper" class="btn">보</button>
+    </div>
+    <br>
+    <div id="score">0</div>
+    
+    <script>
+        const $computer = document.querySelector('#computer');
+        const $score = document.querySelector('#score');
+        const $rock = document.querySelector('#rock');
+        const $scissors = document.querySelector('#scissors');
+        const $paper = document.querySelector('#paper');
+        const IMG_URL = './images_rps/rps.png';
+
+        $computer.style.background = `url(${IMG_URL}) 0 0`; //paper
+        $computer.style.backgroundSize = 'auto 200px';
+
+        const rpsX = {
+            scissors: '-470px',
+            rock: '-260px',
+            paper: '0',
+        };
+
+        let computerChoice = 'scissors';
+        const changeComputerHand = () => {
+            if(computerChoice === 'rock')   {
+                computerChoice = 'scissors';
+            } else if (computerChoice === 'scissors')   {
+                computerChoice = 'paper';
+            } else if (computerChoice === 'paper')  {
+                computerChoice = 'rock';
+            }
+            $computer.style.background = `url(${IMG_URL}) ${rpsX[computerChoice]} 0`;
+            $computer.style.backgroundSize = 'auto 200px';
+        };
+        //이미지 무한반복
+        let intervalId = setInterval(changeComputerHand, 50);
+        let clickable = true;
+        let score = 0;
+        let comScore = 0;
+        let number = 0;
+        // 가위 : 0, 바위 : 1, 보 : 2
+        // 나\컴    가위    바위    보
+        //  가위      0      -1     -2
+        //  바위      1       0     -1
+        //  보        2       1      0
+        const scoreTable = {
+                        scissors: 0,
+                        rock: 1,
+                        paper: 2,
+                    };
+
+        const clickButton = () => {
+            if(clickable)   {
+                //setInterval 멈춤
+                clearInterval(intervalId);
+                clickable = false;
+                const myChoice = event.target.textContent === '바위' ? 'rock'
+                    : event.target.textContent === '가위' ? 'scissors' : 'paper';
+
+                const myScore = scoreTable[myChoice];
+                const computerScore = scoreTable[computerChoice];
+                const diff = myScore - computerScore;
+                let message;
+
+                if(diff === 0)  {
+                    message = '무승부';
+                    number++;
+                          //diff === 1 || diff === -2
+                } else if([1, -2].includes(diff))    {
+                    message = '승리!';
+                    score += 1;
+                    number++;
+                } else  {
+                    message = '패배!';
+                    comScore += 1;
+                    number++;
+                }
+
+                if(score === 3) {
+                    message = '당신이 승리하였습니다! 축하합니다!';
+                } else if (comScore === 3)  {
+                    message = '당신이 패배했습니다.';
+                } else if (number === 5)    {
+                    message = '무승부 입니다!';
+                }
+
+                $score.textContent = `${message} [총 : ${(number)}판 ${score}승]`;
+
+                //점수계산 및 화면 표시
+                setTimeout(() => {
+                    clickable = true;
+                    intervalId = setInterval(changeComputerHand, 50);
+                }, 1000);
+            }
+        };
+
+        $rock.addEventListener('click', clickButton);
+        $scissors.addEventListener('click', clickButton);
+        $paper.addEventListener('click', clickButton);
+
+    </script>
+
+</body>
+</html>
